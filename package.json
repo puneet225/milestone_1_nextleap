@@ -1,0 +1,14 @@
+{
+  "name": "milestone_1_antigravity",
+  "version": "1.0.0",
+  "description": "An AI-powered restaurant recommendation service inspired by Zomato. Enter your preferences — location, budget, cuisine, and rating — and get personalized recommendations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
