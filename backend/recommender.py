@@ -147,11 +147,9 @@ def get_recommendations(user_prefs: dict, filtered_df: pd.DataFrame) -> list[dic
     if filtered_df.empty:
         return []
 
-    # Fix: Explicitly disable proxies in the httpx client to prevent 
+    # Fix: Explicitly disable proxy in the httpx client to prevent 
     # conflict with Groq SDK initialization
-    # Fix: Explicitly disable proxies in the httpx client to prevent 
-    # conflict with Groq SDK initialization
-    http_client = httpx.Client(proxies=None)
+    http_client = httpx.Client(proxy=None)
 
     client = Groq(
         api_key=os.environ["GROQ_API_KEY"],
