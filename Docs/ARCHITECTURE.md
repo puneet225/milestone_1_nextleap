@@ -41,14 +41,15 @@ README.md
   - Mandatory 100% accurate Zomato URLs from the original source.
   - No "flavor text" hallucinations—everything must be evidence-based.
 
-## Phase 5 — Frontend (Next.js 14, App Router)
-- **Tabbed Results View**:
-  - **All Recommendations**: The traditional ranked grid of restaurants.
-  - **AI Best Match**: A featured, premium view highlighting the #1 recommendation with detailed reasoning.
-- **Enhanced Precision Controls**:
-  - **Rating Slider**: Updated to 0.1 precision (step 0.1) for granular filtering (e.g. 3.6+).
-  - **Budget Interaction**: Auto-rounding to ₹50 increments for intuitive sliding.
-- **Resilience**: Added a "Connectivity Error" UI to handle backend downtime gracefully.
+## Phase 6 — Deployment Options
+### A. Next.js + FastAPI (Docker)
+- Standard production setup using `docker-compose.yml`.
+- Logic hosted on a Python server (FastAPI), UI on Next.js.
+
+### B. Streamlit Community Cloud (Standalone)
+- **Entry Point**: `backend/streamlit_app.py`.
+- **Purpose**: Rapid, free deployment of the entire system as a single interactive Python app.
+- **Backend Reuse**: Directly imports `recommender` and `data_loader` modules for zero-logic duplication.
 
 ## Hard Constraints (Updated)
 1. **Fact-Only Summaries**: AI must only use provided review snippets; no generic placeholder descriptions.
