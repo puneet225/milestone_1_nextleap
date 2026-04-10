@@ -74,7 +74,8 @@ def build_prompt(user_prefs: dict, filtered_df: pd.DataFrame) -> str:
             "rank": 1,
             "name": "Restaurant Name",
             "cuisine": "North Indian",
-            "rating": 4.5,
+            "dish_liked": "Butter Chicken, Naan",
+            "reviews": "Great ambiance and service.",
             "cost_for_two": 600,
             "rest_type": "Casual Dining",
             "url": "https://www.zomato.com/...",
@@ -97,8 +98,13 @@ Your task:
 4. Return your answer as a JSON array ONLY — no markdown code fences, no prose before or after, no extra keys.
 
 STRICT RULES (violation = failure):
-- NEVER invent, fabricate, or modify restaurant names, URLs, ratings, or costs.
-- ONLY use restaurants from the candidate list provided above.
+- RICH PERSONALIZATION: Your "ai_explanation" must be a cohesive, expert summary. Use the "dish_liked" and "reviews" data to describe:
+  * AMBIANCE: (e.g., rooftop, cozy, rustic, family-friendly)
+  * MUST-TRY DISHES: (specifically mention items from "dish_liked")
+  * SERVICE: (comment on hospitality if mentioned in reviews)
+- STRICT GROUNDING: ONLY use facts from the candidate list. NEVER describe ambiance or service quality unless those specific keywords are present in the provided "reviews" or "rest_type" fields. If data is missing for these fields, focus only on budget and cuisine match.
+- NO HALLUCINATION: NEVER guest or "flavor" the response with invented details.
+- EXPLICIT MATCHING: Clearly state how the restaurant bits the user's filtered preferences.
 - The "url" field MUST be copied exactly from the candidate list — never guess or construct a URL.
 - If fewer than 5 candidates exist, return all of them.
 - Output ONLY valid JSON — the response must start with "[" and end with "]".

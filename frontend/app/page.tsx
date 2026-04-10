@@ -40,6 +40,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "best">("all");
 
   // ── Load filters on mount ────────────────────────────────────────────────
   useEffect(() => {
@@ -88,6 +89,7 @@ export default function HomePage() {
       setResults(null);
       setHasSearched(true);
       setToastMsg(null);
+      setActiveTab("all"); // Reset to 'all' on new search
 
       if (USE_MOCK) {
         console.log("Using Mock Recommendations (Dynamic Import)...");
@@ -299,7 +301,7 @@ export default function HomePage() {
                   type="range"
                   min={1.0}
                   max={5.0}
-                  step={0.5}
+                  step={0.1}
                   value={minRating}
                   onChange={(e) => setMinRating(Number(e.target.value))}
                   className="w-full"
@@ -421,11 +423,62 @@ export default function HomePage() {
                       Ranked by AI
                     </span>
                   </div>
-                  <div id="results-container" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {results.map((rec) => (
-                      <RestaurantCard key={`${rec.rank}-${rec.name}`} rec={rec} />
-                    ))}
+
+                  {/* ── Tab Switcher ── */}
+                  <div className="flex gap-2 mb-6 p-1 bg-gray-100/50 rounded-xl w-fit">
+                    <button
+                      onClick={() => setActiveTab("all")}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        activeTab === "all"
+                          ? "bg-white text-gray-800 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      All Recommendations
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("best")}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all ${
+                        activeTab === "best"
+                          ? "bg-white text-gray-800 shadow-sm"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                    >
+                      <Sparkles size={14} className={activeTab === "best" ? "text-yellow-500" : ""} />
+                      AI Best Match
+                    </button>
                   </div>
+
+                  {activeTab === "all" ? (
+                    <div id="results-container" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {results.map((rec) => (
+                        <RestaurantCard key={`${rec.rank}-${rec.name}`} rec={rec} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="max-w-2xl">
+                      <div className="bg-gradient-to-br from-red-50 to-white border-2 border-red-100 rounded-3xl p-1 shadow-md mb-8">
+                        <div className="bg-white rounded-[1.4rem] p-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                              <Sparkles size={12} />
+                              OVERALL BEST MATCH
+                            </div>
+                          </div>
+                          <RestaurantCard rec={results[0]} />
+                          <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                              <Sparkles size={14} className="text-red-500" />
+                              Why this is your #1 match:
+                            </h4>
+                            <p className="text-gray-600 text-sm leading-relaxed italic">
+                              "{results[0].ai_explanation}"
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full min-h-72 text-center gap-4 py-16">

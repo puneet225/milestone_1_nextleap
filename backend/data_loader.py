@@ -68,54 +68,68 @@ def _load_and_clean() -> pd.DataFrame:
 
     logger.info("Raw dataset shape: %s  |  Columns: %s", raw.shape, list(raw.columns))
 
-    # Build rename map: original-column → canonical-name
+    # Build rename map
     rename_map: dict[str, str] = {}
-    missing: list[str] = []
     for canonical, candidates in _FIELD_CANDIDATES.items():
         found = _pick_column(raw, canonical, candidates)
-        if found is None:
-            missing.append(canonical)
-        elif found != canonical:
+        if found:
             rename_map[found] = canonical
-
-    if missing:
-        logger.warning("Missing canonical fields: %s — they will be absent from the DataFrame", missing)
+    
+    # Add special rich columns if they exist
+    if "dish_liked" in raw.columns: rename_map["dish_liked"] = "dish_liked"
+    if "reviews_list" in raw.columns: rename_map["reviews_list"] = "reviews_list"
 
     df = raw.rename(columns=rename_map)
-
-    # Keep only the canonical columns that we actually have
-    keep = [c for c in _FIELD_CANDIDATES.keys() if c in df.columns]
+    keep = [c for c in list(_FIELD_CANDIDATES.keys()) + ["dish_liked", "reviews_list"] if c in df.columns]
     df = df[keep].copy()
 
-    # ---- Type coercions ----
+    # ---- Cleaning ----
+    def clean_cost(x):
+        try:
+            return float(str(x).replace(",", ""))
+        except:
+            return 0.0
+
+    def clean_rating(x):
+        try:
+            return float(str(x).split("/")[0]) if "/" in str(x) else float(x)
+        except:
+            return 0.0
+
+    def parse_reviews(rev_str):
+        if not rev_str or rev_str == "[]": return ""
+        try:
+            import ast
+            reviews = ast.literal_eval(rev_str)
+            comments = []
+            for _, r_text in reviews[:3]:
+                clean_t = r_text.replace("RATED\n", "").replace("\n", " ").strip()
+                if clean_t: comments.append(clean_t)
+            return " | ".join(comments)
+        except:
+            return ""
+
     if "cost_for_two" in df.columns:
-        # Handle comma-separated strings (e.g. "1,200")
-        df["cost_for_two"] = (
-            df["cost_for_two"]
-            .astype(str)
-            .str.replace(",", "", regex=False)
-            .str.extract(r"(\d+)")
-            [0]
-            .pipe(pd.to_numeric, errors="coerce")
-        )
-
+        df["cost_for_two"] = df["cost_for_two"].apply(clean_cost)
     if "aggregate_rating" in df.columns:
-        # Some datasets store rating as "4.1/5" or "NEW" — coerce to float
-        df["aggregate_rating"] = (
-            df["aggregate_rating"]
-            .astype(str)
-            .str.extract(r"(\d+\.?\d*)")[0]
-            .astype(float)
-        )
-
+        df["aggregate_rating"] = df["aggregate_rating"].apply(clean_rating)
+    if "reviews_list" in df.columns:
+        df["reviews_list"] = df["reviews_list"].apply(parse_reviews)
     if "votes" in df.columns:
         df["votes"] = pd.to_numeric(df["votes"], errors="coerce").fillna(0).astype(int)
 
+    # ---- Drop duplicates ----
+    # Some restaurants are listed multiple times if they have different 'types'
+    # or were scraped at different times. We keep only the first unique Name+Location.
+    before_dupes = len(df)
+    df = df.drop_duplicates(subset=["name", "location"])
+    logger.info("Dropped %d duplicate restaurants. Remaining: %d", before_dupes - len(df), len(df))
+
     # ---- Drop rows missing critical fields ----
     critical = [c for c in ["name", "location", "cost_for_two", "aggregate_rating"] if c in df.columns]
-    before = len(df)
+    before_nulls = len(df)
     df = df.dropna(subset=critical)
-    logger.info("Dropped %d rows with null critical fields. Remaining: %d", before - len(df), len(df))
+    logger.info("Dropped %d rows with null critical fields. Remaining: %d", before_nulls - len(df), len(df))
 
     # Normalise string fields
     for col in ["name", "location", "cuisines", "rest_type", "url"]:
