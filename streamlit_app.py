@@ -13,7 +13,14 @@ try:
     import recommender
 except ImportError as e:
     st.error(f"Critical System Error: Missing core modules: {e}")
-    st.info("Check build logs to ensure 'requirements.txt' was processed successfully.")
+    st.write("---")
+    st.subheader("🛠️ Deployment Diagnostic Info")
+    st.write(f"**Python Executable:** {sys.executable}")
+    st.write(f"**Current Working Dir:** {os.getcwd()}")
+    st.write("**Python Path:**")
+    st.code("\n".join(sys.path))
+    
+    st.info("Check 'Manage app' -> 'Logs' in the bottom right for full build details.")
     raise e
 
 # --- Page Config ---
