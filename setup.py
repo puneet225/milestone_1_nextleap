@@ -10,7 +10,7 @@ setup(
         "python-dotenv==1.0.1",
         "groq==1.1.2",
         "pandas==2.2.2",
-        "httpx[http2]==0.28.1",
+        "httpx==0.28.1",
         "streamlit==1.40.0",
     ],
     python_requires=">=3.11",
