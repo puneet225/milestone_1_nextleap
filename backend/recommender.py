@@ -8,17 +8,11 @@ calls the Groq API, and returns a ranked list of recommendations as JSON.
 from __future__ import annotations
 
 import os
-# Fix: Disable httpx proxies to prevent Groq SDK conflict
-# This resolves: "__init__() got an unexpected keyword argument 'proxies'"
-os.environ['no_proxy'] = '*'
-os.environ['NO_PROXY'] = '*'
-
 import json
 import logging
 import re
 import time
 
-import httpx
 import pandas as pd
 from groq import Groq
 
@@ -147,13 +141,8 @@ def get_recommendations(user_prefs: dict, filtered_df: pd.DataFrame) -> list[dic
     if filtered_df.empty:
         return []
 
-    # Fix: Explicitly disable proxy in the httpx client to prevent 
-    # conflict with Groq SDK initialization
-    http_client = httpx.Client(proxy=None)
-
     client = Groq(
-        api_key=os.environ["GROQ_API_KEY"],
-        http_client=http_client
+        api_key=os.environ["GROQ_API_KEY"]
     )
     prompt = build_prompt(user_prefs, filtered_df)
 

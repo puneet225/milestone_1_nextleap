@@ -39,7 +39,6 @@ def show_diagnostics(error=None):
 try:
     import data_loader
     import recommender
-    import httpx
 except ImportError as e:
     show_diagnostics(e)
     st.stop()
