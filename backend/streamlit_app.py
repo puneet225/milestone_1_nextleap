@@ -68,6 +68,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# --- Data Loading (Optimized Cache) ---
+@st.cache_data
+def load_and_prep_data():
+    """Warms the cache and returns the fully processed dataframe."""
+    data_loader.preload()
+    return data_loader.get_dataframe()
+
 # --- App Logic ---
 def main():
     st.title("🍴 Antigravity")
@@ -75,7 +82,7 @@ def main():
 
     # Load Data
     with st.spinner("Warming up the kitchen (Loading data)..."):
-        data_loader.preload()
+        df = load_and_prep_data()
         locations = data_loader.get_unique_locations()
         cuisines = data_loader.get_unique_cuisines()
         costs = data_loader.get_cost_range()

@@ -13,6 +13,9 @@ import logging
 import re
 import time
 
+# Ensure Streamlit Cloud proxy doesn't interfere with Groq API
+os.environ["no_proxy"] = "*"
+
 import pandas as pd
 from groq import Groq
 
