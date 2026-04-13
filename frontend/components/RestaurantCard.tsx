@@ -77,7 +77,7 @@ export function RestaurantCard({ rec }: RestaurantCardProps) {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-lg">
             <Star size={14} fill="currentColor" stroke="none" />
-            <span className="font-bold text-sm">{rec.rating}</span>
+            <span className="font-bold text-sm">{Number(rec.rating).toFixed(1)}</span>
           </div>
         </div>
         <div className="flex items-center gap-1 text-gray-700 font-bold text-sm">
