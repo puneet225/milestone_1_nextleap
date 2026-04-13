@@ -136,7 +136,14 @@ def main():
                 return
 
             with st.spinner("AI is analyzing your matches..."):
-                user_prefs = f"Location: {selected_location}, Budget: {budget[0]}-{budget[1]}, Cuisine: {selected_cuisine}, Min Rating: {min_rating}, Prefs: {extra_prefs}"
+                user_prefs = {
+                    "location": selected_location if selected_location != "All Areas" else "Any",
+                    "min_cost": budget[0],
+                    "max_cost": budget[1],
+                    "cuisine": selected_cuisine if selected_cuisine != "All Cuisines" else "Any",
+                    "min_rating": min_rating,
+                    "extra_preferences": extra_prefs
+                }
                 recs = recommender.get_recommendations(user_prefs, filtered)
                 st.session_state.results = recs
 

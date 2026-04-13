@@ -100,7 +100,14 @@ def main():
                 return
 
             with st.spinner("AI analyzing reviews..."):
-                user_prefs = f"Area: {selected_location}, Budget: {budget}, Cuisine: {selected_cuisine}, Rating: {min_rating}, {extra_prefs}"
+                user_prefs = {
+                    "location": selected_location if selected_location != "All Areas" else "Any",
+                    "min_cost": budget[0],
+                    "max_cost": budget[1],
+                    "cuisine": selected_cuisine if selected_cuisine != "All Cuisines" else "Any",
+                    "min_rating": min_rating,
+                    "extra_preferences": extra_prefs
+                }
                 st.session_state.results = recommender.get_recommendations(user_prefs, filtered)
 
         if 'results' in st.session_state:
