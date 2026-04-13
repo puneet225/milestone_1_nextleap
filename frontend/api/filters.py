@@ -3,8 +3,8 @@ import json
 import sys
 import os
 
-# Ensure the backend directory is in the path
-sys.path.append(os.path.join(os.getcwd(), "backend"))
+# Ensure the backend logic directory is in the path
+sys.path.append(os.path.join(os.getcwd(), "backend_logic"))
 
 import data_loader
 
